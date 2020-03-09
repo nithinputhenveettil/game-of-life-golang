@@ -37,6 +37,16 @@ func reset(gol *golGame) {
 	}
 }
 
+func litsenKeyboardEvents(gol *golGame) {
+	if rl.IsKeyDown(83) {
+		if gol.simulation {
+			gol.simulation = false
+		} else {
+			gol.simulation = true
+		}
+	}
+}
+
 func litsenMouseClick(gol *golGame) {
 	if rl.IsMouseButtonPressed(0) {
 		points := rl.GetMousePosition()
@@ -75,12 +85,12 @@ func litsenMouseClick(gol *golGame) {
 func drawScreen(gol *golGame) {
 	rl.ClearBackground(rl.White)
 
-	for i := 0; i < gol.size[0]; i = i + 25 {
-		rl.DrawLine(int32(i), int32(50), int32(i), int32(gol.size[1]-100), rl.Black)
-	}
-	for i := 50; i <= gol.size[1]-100; i = i + 25 {
-		rl.DrawLine(int32(0), int32(i), int32(gol.size[0]), int32(i), rl.Black)
-	}
+	// for i := 0; i < gol.size[0]; i = i + 25 {
+	// 	rl.DrawLine(int32(i), int32(50), int32(i), int32(gol.size[1]-100), rl.Black)
+	// }
+	// for i := 50; i <= gol.size[1]-100; i = i + 25 {
+	// 	rl.DrawLine(int32(0), int32(i), int32(gol.size[0]), int32(i), rl.Black)
+	// }
 
 	rl.DrawText(gol.name, int32(gol.size[0]/2-60), int32(18), 25, rl.Black)
 
@@ -104,6 +114,64 @@ func drawScreen(gol *golGame) {
 
 }
 
+func simulate(gol *golGame) {
+	cGame := gol.game
+	gol.alive = 0
+	gol.dead = 0
+	for i, a := range gol.game {
+		for j := range a {
+			var n = 0
+			if (i-1) >= 0 && (j-1) >= 0 && (i+1) < 20 && (j+1) < 40 {
+				if gol.game[i-1][j-1] {
+					n++
+				}
+				if gol.game[i-1][j] {
+					n++
+				}
+				if gol.game[i-1][j+1] {
+					n++
+				}
+				if gol.game[i][j-1] {
+					n++
+				}
+				if gol.game[i][j+1] {
+					n++
+				}
+				if gol.game[i+1][j-1] {
+					n++
+				}
+				if gol.game[i+1][j] {
+					n++
+				}
+				if gol.game[i+1][j+1] {
+					n++
+				}
+
+				if gol.game[i][j] {
+					if n < 2 || n > 3 {
+						cGame[i][j] = false
+						gol.dead++
+					} else {
+						cGame[i][j] = true
+						gol.alive++
+					}
+				} else {
+					if n == 3 {
+						cGame[i][j] = true
+						gol.alive++
+					} else {
+						cGame[i][j] = false
+						gol.dead++
+					}
+				}
+
+			}
+		}
+	}
+	gol.game = cGame
+	gol.generations++
+}
+
 func main() {
 	gol := new(golGame)
 	reset(gol)
@@ -112,6 +180,10 @@ func main() {
 	rl.SetTargetFPS(60)
 	for !rl.WindowShouldClose() {
 		litsenMouseClick(gol)
+		litsenKeyboardEvents(gol)
+		if gol.simulation {
+			simulate(gol)
+		}
 		rl.BeginDrawing()
 		drawScreen(gol)
 		rl.EndDrawing()
