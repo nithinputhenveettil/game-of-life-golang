@@ -45,6 +45,9 @@ func litsenKeyboardEvents(gol *golGame) {
 			gol.simulation = true
 		}
 	}
+	if rl.IsKeyDown(82) {
+		reset(gol)
+	}
 }
 
 func litsenMouseClick(gol *golGame) {
@@ -85,13 +88,6 @@ func litsenMouseClick(gol *golGame) {
 func drawScreen(gol *golGame) {
 	rl.ClearBackground(rl.White)
 
-	// for i := 0; i < gol.size[0]; i = i + 25 {
-	// 	rl.DrawLine(int32(i), int32(50), int32(i), int32(gol.size[1]-100), rl.Black)
-	// }
-	// for i := 50; i <= gol.size[1]-100; i = i + 25 {
-	// 	rl.DrawLine(int32(0), int32(i), int32(gol.size[0]), int32(i), rl.Black)
-	// }
-
 	rl.DrawText(gol.name, int32(gol.size[0]/2-60), int32(18), 25, rl.Black)
 
 	instr := "Mouse click to select initial configuration.Press 's' to start/stop simulation or 'r' to reset the screen."
@@ -120,51 +116,70 @@ func simulate(gol *golGame) {
 	gol.dead = 0
 	for i, a := range gol.game {
 		for j := range a {
-			var n = 0
-			if (i-1) >= 0 && (j-1) >= 0 && (i+1) < 20 && (j+1) < 40 {
-				if gol.game[i-1][j-1] {
-					n++
-				}
-				if gol.game[i-1][j] {
-					n++
-				}
-				if gol.game[i-1][j+1] {
-					n++
-				}
-				if gol.game[i][j-1] {
-					n++
-				}
-				if gol.game[i][j+1] {
-					n++
-				}
-				if gol.game[i+1][j-1] {
-					n++
-				}
-				if gol.game[i+1][j] {
-					n++
-				}
-				if gol.game[i+1][j+1] {
-					n++
-				}
+			var neighbours = 0
+			var k, l, m, n int
+			if i == 0 {
+				k = 19
+			} else {
+				k = i - 1
+			}
+			if i == 19 {
+				l = 0
+			} else {
+				l = i + 1
+			}
+			if j == 0 {
+				m = 39
+			} else {
+				m = j - 1
+			}
+			if j == 39 {
+				n = 0
+			} else {
+				n = j + 1
+			}
 
-				if gol.game[i][j] {
-					if n < 2 || n > 3 {
-						cGame[i][j] = false
-						gol.dead++
-					} else {
-						cGame[i][j] = true
-						gol.alive++
-					}
+			if gol.game[k][m] {
+				neighbours++
+			}
+			if gol.game[k][j] {
+				neighbours++
+			}
+			if gol.game[k][n] {
+				neighbours++
+			}
+			if gol.game[i][m] {
+				neighbours++
+			}
+			if gol.game[i][n] {
+				neighbours++
+			}
+			if gol.game[l][m] {
+				neighbours++
+			}
+			if gol.game[l][j] {
+				neighbours++
+			}
+			if gol.game[l][n] {
+				neighbours++
+			}
+
+			if gol.game[i][j] {
+				if neighbours < 2 || neighbours > 3 {
+					cGame[i][j] = false
+					gol.dead++
 				} else {
-					if n == 3 {
-						cGame[i][j] = true
-						gol.alive++
-					} else {
-						cGame[i][j] = false
-						gol.dead++
-					}
+					cGame[i][j] = true
+					gol.alive++
 				}
-
+			} else {
+				if neighbours == 3 {
+					cGame[i][j] = true
+					gol.alive++
+				} else {
+					cGame[i][j] = false
+					gol.dead++
+				}
 			}
 		}
 	}
