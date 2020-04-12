@@ -90,7 +90,7 @@ func drawScreen(gol *golGame) {
 
 	rl.DrawText(gol.name, int32(gol.size[0]/2-60), int32(18), 25, rl.Black)
 
-	instr := "Mouse click to select initial configuration.Press 's' to start/stop simulation or 'r' to reset the screen."
+	instr := "Mouse click to select initial configuration. Press 's' to start/stop simulation or 'r' to reset the screen."
 	rl.DrawText(instr, int32(50), int32(gol.size[1]-85), 19, rl.Black)
 
 	rl.DrawText("Generations : "+strconv.Itoa(gol.generations), int32(50), int32(gol.size[1]-40), 20, rl.Black)
